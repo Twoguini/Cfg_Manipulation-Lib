@@ -1,9 +1,0 @@
-{
-  "files.associations": {
-    "cfgfile.h": "c",
-    "stdlib.h": "c",
-    "string.h": "c",
-    "returncodes.h": "c"
-  },
-  "C_Cpp.errorSquiggles": "disabled"
-}
