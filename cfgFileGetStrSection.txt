@@ -1,0 +1,15 @@
+	  [  O  I  ]  \0  --> [5] Bytes  --> _  _  _  _
+posições: 0  1  2  3   4
+
+posição [ --> 0
+posição ] --> 3 
+
+strUntrimmedSection[(] - [)]  -->  strUntrimmedSection[3 - 0]  --> strUntrimmedSection[3]  -->  _  _  _     (Posição de o que está no meio dos [] + posição do ] para o \0)
+
+strUntrimmedSection = De Posição [ + 1, Conte Até (Posição ] - Posição de [) - 1 
+				(0 + 1)			  (3 -            0  - 1)
+
+strUntrimmedSection = Da Posição 1, Conte Até posição 2  -->  O  I  _
+
+strUntrimmedSection[] - 1] = \0  -->   O  I  \0
+		   (3 - 1) 
