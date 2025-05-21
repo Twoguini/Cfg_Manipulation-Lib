@@ -115,6 +115,10 @@ int main() {
 
   printf("Chosen Index Was: %03d\n", testingIndex);
 
+  LOG_INFO("All systems go!");
+  LOG_WARN("Low disk space");
+  LOG_ERROR("Failed to open file");
+
   printf("========================= Dinamic Alocation Test ========================\n");
   //TODO - Dynamic allocation test
   printf("========================= Dinamic Alocation Test ========================\n");
