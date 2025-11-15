@@ -40,13 +40,13 @@ int test_Trim() {
   printf("=============================== Trim Tests ==============================\n\n");
 
   // - Testing with Raw str parameter
-  printf("================== Str Direct Param =================\n");
+  LOG_INFO("================== Str Direct Param =================\n");
   char *pOutData = trim("  Teste    ");
   if (strcmp(pOutData, "Teste") != 0) { 
-    printf("FAIL: Entered Data: '   Teste     ' - Expected: 'Teste' - Received: '%s'\n\n", pOutData);
+    LOG_ERROR("FAIL: Entered Data: '   Teste     ' - Expected: 'Teste' - Received: '%s'\n\n", pOutData);
     return 1;
   } else {
-    printf("Passed: Entered Data: '   Teste     ' - Expected: 'Teste' - Received: '%s'\n\n", pOutData);
+    LOG_SUCCESS("Passed: Entered Data: '   Teste     ' - Expected: 'Teste' - Received: '%s'\n\n", pOutData);
   }
 
   // - Testing with the text inside a variable - CORRECT WAY OF USING - 
