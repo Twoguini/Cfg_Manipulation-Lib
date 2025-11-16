@@ -7,7 +7,7 @@
 ///     return "abcd"
 ///   Params:
 ///  Return:
-char *trim(const char *pInData);
+int trim(const char *pInData, char *trimmedValue);
 
 /// Function: isPath
 ///  Description: return TRUE if pPath is a existing path otherwise return FALSE

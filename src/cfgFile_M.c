@@ -41,9 +41,15 @@ EXPORT int exec_me_teste(int iTestIndx) {
 }
 
 // - Remove Leading and Trailing spaces from a string
-EXPORT char *trim(const char *str) {
+EXPORT int trim(const char *str, char *trimmedValue) {
 
-    char *trimmedOutput;
+    if (str == NULL) { // - Is Null?
+        // TODO LOG ("pCfgFilePath[%s]NO - NULL",pPath)
+        return RC_NULL_POINTER;
+    } else if (strlen(str) == 0) { // - Is it Empty then? 
+        // TODO LOG(" pCfgFilePath[%s]NO - EMPTY - Use Current Path",pPath)
+        return RC_EMPTY_POINTER;
+    }
 
     // - Here we get the str pointer and loop through it until we find any character other than newlines, carriage returns, or spaces
     while (*str == ' ' || *str == '\t' || *str == '\n' || *str == '\r')
@@ -59,10 +65,9 @@ EXPORT char *trim(const char *str) {
     // - When the loop is broken, it means the case before the lenght is a valid Character, 
     // só we add the "\0" wich indicates the end of the str and tels us to ignore any character after it
 
-    trimmedOutput = malloc(len+1);
-    strncpy(trimmedOutput, str, len);
-    trimmedOutput[len] = '\0';
-    return trimmedOutput;
+    strncpy(trimmedValue, str, len);
+    trimmedValue[len] = '\0';
+    return RC_SUCCESS;
 }
 
 // - If pPath exists return TRUE, return FALSEo if is empty, null or do not exist
@@ -195,7 +200,7 @@ EXPORT int cfgFileSectionExist(char *pPath, char *pCfgFileName,char *pSection) {
 }
 
 // - Format Section Name
-EXPORT int cfgFileGetStrSection(char *pstrCfgSectionName, char *pstrSectionContent) {
+EXPORT int cfgFileGetStrSection(char *pstrCfgSectionName, char pstrSectionContent[256]) {
     // TODO: logLogFileInitialize(WARNING, "libcfgfile", 1,1);
     if(pstrCfgSectionName == NULL) {
         /// Section is null
@@ -225,8 +230,8 @@ EXPORT int cfgFileGetStrSection(char *pstrCfgSectionName, char *pstrSectionConte
         /// Section Must not have spaces between brackets
         return RC_SESSION_NAME_HAVE_SPACES_BETWEEN_BRACKETS;
     }
+    trim(strUntrimmedSection, pstrSectionContent);
     free(strUntrimmedSection);
-    pstrSectionContent = trim(strUntrimmedSection);
     return 0;
 }
 
@@ -336,7 +341,8 @@ EXPORT int cfgFileReadKeyValue(char *pPath,  char *pCfgFileName, char *pSection,
     int iKeyFound = 0;
 
     while (fgets(strLine, sizeof(strLine), pFileHandle)) {
-        char *pTrimmedLine = trim(strLine);
+        char pTrimmedLine[256]; 
+        trim(strLine, pTrimmedLine);
         if (pTrimmedLine[0] == ';' || pTrimmedLine[0] == '#') {
             // Skip comment lines
             continue;
@@ -358,8 +364,10 @@ EXPORT int cfgFileReadKeyValue(char *pPath,  char *pCfgFileName, char *pSection,
             char *pEqualSign = strchr(pTrimmedLine, '=');
             if (pEqualSign && strCurSession[0] && strcmp(strCurSession, pSection) == 0) {
                 *pEqualSign = '\0';  // Null-terminate at the equal sign
-                char *pCurrentKey = trim(pTrimmedLine);
-                char *pCurrentValue = trim(pEqualSign + 1);
+                char pCurrentKey[256];
+                trim(pTrimmedLine, pCurrentKey);
+                char pCurrentValue[256];
+                trim(pEqualSign + 1, pCurrentValue);
                 // TODO LOG(logDebug("pPath[%s] pCfgFileName[%s] pSection[%s] currentKey[%s] currentValue[%s]",pPath,pCfgFileName,pSection,pCurrentKey,pCurrentValue);
 
                 if (strcmp(pCurrentKey, pKey) == 0) {

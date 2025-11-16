@@ -23,8 +23,8 @@
 // "Every testing routine has to create it's own needed resorces"
 //
 // - Index - Tested Funcion         - Testing Routine
-// -  000  - Running all functions  - 
-// -  001  - trim                   - Success           |
+// -  000  - Running all tests      - 
+// -  001  - trim                   - Null String       | Empty String           | Success                         |
 // -  002  - isPath                 - Null Path         | Empty Path             | Path is a Dir W/ Granted Access | Path is a Dir W/ out Granted Access | Path is a File W/ Granted Access | Path is a File W/ out Granted Access
 // -  003  - cfgFileCreate          - Null Name         | No Path / Invalid Path | File Already Exists             | Failed to Create File               | File Succesfully Created         |
 // -  004  - cfgFileSectionExist    - Null Arguments    | File Does not Exist    | Section Exists                  | Section Not Found                   | 
@@ -39,9 +39,35 @@
 int test_Trim() {
   printf("=============================== Trim Tests ==============================\n\n");
 
+  int iRc;
+  char pOutData[256];
+
+  // - Testing with Null parameter
+  printf("===================== NULL Param ====================\n");
+  LOG_INFO("Using a NULL Parameter to Test");
+  iRc = trim(NULL, NULL);
+  if (iRc != RC_NULL_POINTER) { 
+    LOG_ERROR("Entered Data: NULL - Expected: 'RC_NULL_POINTER' '-14' - Received: '%d'\n\n", iRc);
+    return 1;
+  } else {
+    LOG_SUCCESS("Entered Data: NULL - Expected: 'RC_NULL_POINTER' '-14' - Received: '%d'\n\n", iRc);
+  }
+
+  // - Testing with EMPY parameter
+  printf("==================== EMPTY Param ====================\n");
+  LOG_INFO("Using a EMPTY Parameter to Test");
+  iRc = trim("", NULL);
+  if (iRc != RC_EMPTY_POINTER) { 
+    LOG_ERROR("Entered Data: NULL - Expected: 'RC_EMPTY_POINTER' '-15' - Received: '%d'\n\n", iRc);
+    return 1;
+  } else {
+    LOG_SUCCESS("Entered Data: NULL - Expected: 'RC_EMPTY_POINTER' '-15' - Received: '%d'\n\n", iRc);
+  }
+  
   // - Testing with Raw str parameter
-  LOG_INFO("================== Str Direct Param =================\n");
-  char *pOutData = trim("  Teste    ");
+  printf("================== Str Direct Param =================\n");
+  LOG_INFO("Using a String as direct Parameter to Test");
+  trim("  Teste    ", pOutData);
   if (strcmp(pOutData, "Teste") != 0) { 
     LOG_ERROR("FAIL: Entered Data: '   Teste     ' - Expected: 'Teste' - Received: '%s'\n\n", pOutData);
     return 1;
@@ -51,22 +77,35 @@ int test_Trim() {
 
   // - Testing with the text inside a variable - CORRECT WAY OF USING - 
   printf("====================== Var Param ====================\n");
+  LOG_INFO("Using a Variable as Parameter to Test");
   char strInData[14];
   strcpy(strInData,"  Teste    ");
-  pOutData = trim(strInData);
+  trim(strInData, pOutData);
   if (strcmp(pOutData, "Teste") != 0) { 
-    printf("FAIL: Entered Data: '%s' - Expected: 'Teste' - Received: '%s'\n\n",strInData , pOutData);
+    LOG_ERROR("FAIL: Entered Data: '%s' - Expected: 'Teste' - Received: '%s'\n\n",strInData , pOutData);
     return 1;
   } else {
-    printf("Passed: Entered Data: '%s' - Expected: 'Teste' - Received: '%s'\n\n", strInData, pOutData);
+    LOG_SUCCESS("Passed: Entered Data: '%s' - Expected: 'Teste' - Received: '%s'\n\n", strInData, pOutData);
   }
 
   printf("=============================== Trim Tests ==============================\n\n");
   return 0; 
 }
 
-/*int test_IsPath() {}
-int test_FileCreate() {}
+int test_IsPath() {
+  printf("============================== IsPath Tests =============================\n\n");
+
+  int iRc;
+
+  /// Testing with null parameter
+  printf("===================== Null Param ====================\n");
+  iRc = isPath(NULL);
+  
+
+  printf("============================== IsPath Tests =============================\n\n");
+  return 0;
+}
+/*int test_FileCreate() {}
 int test_FileSectionExist() {}
 int test_FileGetStrSection() {}
 int test_FileKeyExist() {}
@@ -114,11 +153,6 @@ int main() {
   }
 
   printf("Chosen Index Was: %03d\n", testingIndex);
-
-  LOG_INFO("All systems go!");
-  LOG_WARN("Low disk space");
-  LOG_ERROR("Failed to open file");
-  LOG_SUCCESS("Deu tudo certo");
 
   printf("========================= Dinamic Alocation Test ========================\n");
   //TODO - Dynamic allocation test

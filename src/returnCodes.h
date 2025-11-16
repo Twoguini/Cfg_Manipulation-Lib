@@ -62,22 +62,23 @@ const int RC_SECTION_ALREADY_EXISTS                         =   -13;   // - Targ
 
 // - Oter Parameters - 
 const int RC_NULL_POINTER                                   =   -14;   // - Received a NULL pointer
+const int RC_EMPTY_POINTER                                  =   -15;   // - Receiver a EMPTY pointer
 
 // --- Open Failures ---
-const int RC_FAILED_TO_OPEN_FILE                            =   -15;   // - Failed to Open the File
+const int RC_FAILED_TO_OPEN_FILE                            =   -16;   // - Failed to Open the File
 
 // --- Not Found ---
-const int RC_CFG_SECTION_NOT_FOUND                          =   -16;  // - Target Cfg Section Was not Found
-const int RC_CFG_KEY_NOT_FOUND                              =   -17;  // - Targed Cfg Key was not found
+const int RC_CFG_SECTION_NOT_FOUND                          =   -17;  // - Target Cfg Section Was not Found
+const int RC_CFG_KEY_NOT_FOUND                              =   -18;  // - Targed Cfg Key was not found
 
 // --- Operation Failure ---
-const int RC_FAILED_CREATION_TMP_FILE                       =   -18;  // - Failed to Create a Temp File
-const int RC_KEY_NOT_UPDATED                                =   -19;  // - Failed to Update the Key
+const int RC_FAILED_CREATION_TMP_FILE                       =   -19;  // - Failed to Create a Temp File
+const int RC_KEY_NOT_UPDATED                                =   -20;  // - Failed to Update the Key
 
 // --- Memmory Failure ---
-const int RC_MALLOC_FAILED                                  =   -20;  // - Memmory Alocation (Malloc) went wrong
+const int RC_MALLOC_FAILED                                  =   -21;  // - Memmory Alocation (Malloc) went wrong
 
 // --- Testing Failure ---
-const int RC_NOT_A_NUMBER                                   =   -21;  // - Imput is not a number
+const int RC_NOT_A_NUMBER                                   =   -22;  // - Imput is not a number
 
 #endif
