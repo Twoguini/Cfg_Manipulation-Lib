@@ -97,6 +97,28 @@ int test_IsPath() {
 
   int iRc;
 
+  // - Testing with Null parameter
+  printf("===================== NULL Param ====================\n");
+  LOG_INFO("Using a NULL Parameter to Test");
+  iRc = isPath(NULL);
+  if (iRc != RC_INVALID_PATH) { 
+    LOG_ERROR("Entered Data: NULL - Expected: 'RC_INVALID_PATH' '-1' - Received: '%d'\n\n", iRc);
+    return 1;
+  } else {
+    LOG_SUCCESS("Entered Data: NULL - Expected: 'RC_INVALID_PATH' '-1' - Received: '%d'\n\n", iRc);
+  }
+
+  // - Testing with EMPY parameter
+  printf("==================== EMPTY Param ====================\n");
+  LOG_INFO("Using a EMPTY Parameter to Test");
+  iRc = isPath("");
+  if (iRc != RC_INVALID_PATH) { 
+    LOG_ERROR("Entered Data: NULL - Expected: 'RC_INVALID_PATH' '-1' - Received: '%d'\n\n", iRc);
+    return 1;
+  } else {
+    LOG_SUCCESS("Entered Data: NULL - Expected: 'RC_INVALID_PATH' '-1' - Received: '%d'\n\n", iRc);
+  }
+
   /// Testing with null parameter
   printf("===================== Null Param ====================\n");
   iRc = isPath(NULL);
@@ -162,8 +184,8 @@ int main() {
   // - Run All Tests
   case 0:
     test_Trim();
-    /*test_IsPath();
-    test_FileCreate();
+    test_IsPath();
+    /*test_FileCreate();
     test_FileSectionExist();
     test_FileGetStrSection();
     test_FileKeyExist();
@@ -180,12 +202,12 @@ int main() {
     break;
 
   // - Is Path Function
-/*case 2:
+  case 2:
     test_IsPath();
     break;
 
   // - Create File Function
-  case 3:
+  /*case 3:
     test_FileCreate();
     break;
 
