@@ -36,6 +36,8 @@
 // -  010  - cfgFileDelSection      - Null Arguments    | File Does not Exist    | Section Not Found               | Section Successfully Deleted        | 
 // -  011  - cfgFileDelKey          - Null Arguments    | File Does not Exist    | Section Not Found               | Key not Found                       | Key Successfully Deleted         |
 
+/// @brief Testing Trim function
+/// @return Integer based on return codes 
 int test_Trim() {
   printf("=============================== Trim Tests ==============================\n\n");
 
@@ -118,11 +120,6 @@ int test_IsPath() {
   } else {
     LOG_SUCCESS("Entered Data: NULL - Expected: 'RC_INVALID_PATH' '-1' - Received: '%d'\n\n", iRc);
   }
-
-  /// Testing with null parameter
-  printf("===================== Null Param ====================\n");
-  iRc = isPath(NULL);
-  
 
   printf("============================== IsPath Tests =============================\n\n");
   return 0;
