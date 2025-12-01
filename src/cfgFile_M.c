@@ -136,7 +136,7 @@ EXPORT int cfgFileCreate( char *pPath, char *pCfgFileName) {
         // concatenate path with file
         sprintf(strCfgFileFullPath, "%s/%s",pPath,pCfgFileName);
     }
-    // Check if a file exist
+    // Check if a file exists
     int rc = access(strCfgFileFullPath, F_OK);
     if (rc != -1) {
         /// file already exist

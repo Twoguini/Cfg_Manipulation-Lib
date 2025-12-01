@@ -4,6 +4,12 @@
 #include <string.h>
 #include "returnCodes.h"
 #include "logMessages.h"
+#include <sys/stat.h>
+
+#define DIR_W_PER_NAME "testing_dir-fper"
+#define DIR_WO_PER_NAME "testing_dir-nper"
+#define FILE_W_PER_NAME "testing_file-fper"
+#define FILE_WO_PER_NAME "testing_file-nper"
 
 // - Defining Export according on the patflorm used
 #ifdef _WIN32
@@ -11,14 +17,111 @@
   #define EXPORT __declspec(dllexport)
   // - If windows, export
   #include <io.h>
+  #include <direct.h>
+  
+  #define SECURITY_WIN32   // required for GetUserNameExA()
+  #include <windows.h>
+  #include <secext.h>
   // - If windows, Use _access
   #define access _access
+  #define rmdir _rmdir
 #else 
   // - If Linux, export as .so
   #define EXPORT __attribute__((visibility("default")))
   // - If Linux, export 
   #include <unistd.h>
 #endif
+
+static char user[256];
+static ULONG user_len = sizeof(user);
+
+/// @brief Creates two local directories, one with permissions and the other without.
+/// @return 0 for SUCCESS and -1 for any failure
+int directory_testingCreation() {
+
+  #ifdef _WIN32
+
+      if (_mkdir(DIR_W_PER_NAME) != 0) return -1;
+      if (_mkdir(DIR_WO_PER_NAME) != 0) return -1;
+
+      char cmd[512];
+      snprintf(cmd, sizeof(cmd), "icacls %s /deny \"%s\":(RX)", DIR_WO_PER_NAME, user);
+      system(cmd);
+
+      return 0;
+
+  #else
+      if (mkdir(DIR_W_PER_NAME, 0777) != 0) return -1;
+      if (mkdir(DIR_WO_PER_NAME, 0000) != 0) return -1;
+
+      return 0;
+  #endif
+}
+
+/// @brief Creates two local files, one with permissions and the other without.
+/// @return 0 for SUCCESS and -1 for any failure
+int file_testingCreation() {
+  
+  FILE *fp = fopen(FILE_W_PER_NAME, "w");
+  if (!fp) return -1;
+  fclose(fp);
+
+  fp = fopen(FILE_WO_PER_NAME, "w");
+  if (!fp) return -1;
+  fclose(fp);
+
+  #ifdef _WIN32
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "icacls %s /deny \"%s\":(RX)", FILE_WO_PER_NAME, user);
+    system(cmd);
+
+  #else
+    if (chmod(FILE_WO_PER_NAME, 0000) != 0) return -1;
+  #endif
+
+  return 0;
+}
+
+/// @brief Deletes all testing directories
+/// @return 0 for SUCCESS and -1 for any failure
+int clear_testing_dir() {
+
+  if(access(DIR_W_PER_NAME, 0) == 0) {
+    if(rmdir(DIR_W_PER_NAME) != 0) return -1;
+  }
+
+  char cmd[512];
+  snprintf(cmd, sizeof(cmd), "icacls %s /grant \"%s\":(RX)", DIR_WO_PER_NAME, user);
+  system(cmd);
+
+  if(access(DIR_WO_PER_NAME, 0) == 0) {
+    if(rmdir(DIR_WO_PER_NAME) != 0) return -1;
+  }
+
+  return 0;
+}
+
+/// @brief Deletes all testing files
+/// @return 0 for SUCCESS and -1 for any failure
+int clear_testing_file() {
+
+  if(access(FILE_W_PER_NAME, 0) == 0) {
+    if(remove(FILE_W_PER_NAME) != 0) return -1; 
+  }
+
+  if(access(FILE_WO_PER_NAME, 0) == 0) {
+
+    #ifdef _WIN32
+      char cmd[512];
+      snprintf(cmd, sizeof(cmd), "icacls %s /grant \"%s\":(RX)", FILE_WO_PER_NAME, user);
+      system(cmd);
+    #endif
+
+    if(remove(FILE_WO_PER_NAME) != 0) return -1; 
+  }
+
+  return 0;
+}
 
 // "Every testing routine has to create it's own needed resorces"
 //
@@ -94,10 +197,18 @@ int test_Trim() {
   return 0; 
 }
 
+/// @brief Testing IsPath() funcion - it tests if a path is valid and has permission
+/// @return Integer based on return codes
 int test_IsPath() {
   printf("============================== IsPath Tests =============================\n\n");
 
   int iRc;
+  if (!GetUserNameExA(NameSamCompatible, user, &user_len)) {
+    // fallback or error
+    strcpy(user, "UNKNOWN_USER");
+  }
+
+  printf("user: %s", user);
 
   // - Testing with Null parameter
   printf("===================== NULL Param ====================\n");
@@ -120,6 +231,74 @@ int test_IsPath() {
   } else {
     LOG_SUCCESS("Entered Data: NULL - Expected: 'RC_INVALID_PATH' '-1' - Received: '%d'\n\n", iRc);
   }
+
+  LOG_INFO("Creating Testing Directories and Files...");
+  if(directory_testingCreation() != 0) {
+    LOG_ERROR("An Error Ocurred on Directories Creation");
+    return 1;
+  }
+
+  if(file_testingCreation() != 0) {
+    LOG_ERROR("An Error Ocurred on Files Creation");
+    return 1;
+  }
+  LOG_SUCCESS("Creation Of Directories and Files Completed");
+  
+  // - Testing with real path and access to path
+  printf("=========== Real Path to Dir and W/ Access ===========\n");
+  LOG_INFO("Using a Correct Path to a Dir to Test");
+  iRc = isPath("./");
+  if (iRc != RC_PATH_IS_DIR) { 
+    LOG_ERROR("Entered Data: NULL - Expected: 'RC_PATH_IS_DIR' '2' - Received: '%d'\n\n", iRc);
+    return 1;
+  } else {
+    LOG_SUCCESS("Entered Data: NULL - Expected: 'RC_PATH_IS_DIR' '2' - Received: '%d'\n\n", iRc);
+  }
+
+  // - Testing with real path and access to File
+  printf("========== Real Path to File and W/ Access ===========\n");
+  LOG_INFO("Using a Correct Path to a File to Test");
+  iRc = isPath("./logMessages.o");
+  if (iRc != RC_PATH_IS_FILE) { 
+    LOG_ERROR("Entered Data: NULL - Expected: 'RC_PATH_IS_FILE' '3' - Received: '%d'\n\n", iRc);
+    return 1;
+  } else {
+    LOG_SUCCESS("Entered Data: NULL - Expected: 'RC_PATH_IS_FILE' '3' - Received: '%d'\n\n", iRc);
+  }
+
+    // - Testing with real path and no access to path
+  printf("=========== Real Path to Dir and W/ Access ===========\n");
+  LOG_INFO("Using a Correct Path to a Dir to Test");
+  iRc = isPath("./");
+  if (iRc != RC_PATH_IS_DIR) { 
+    LOG_ERROR("Entered Data: NULL - Expected: 'RC_PATH_IS_DIR' '2' - Received: '%d'\n\n", iRc);
+    return 1;
+  } else {
+    LOG_SUCCESS("Entered Data: NULL - Expected: 'RC_PATH_IS_DIR' '2' - Received: '%d'\n\n", iRc);
+  }
+
+  // - Testing with real path and no access to File
+  printf("========== Real Path to File and W/ Access ===========\n");
+  LOG_INFO("Using a Correct Path to a File to Test");
+  iRc = isPath("./logMessages.o");
+  if (iRc != RC_PATH_IS_FILE) { 
+    LOG_ERROR("Entered Data: NULL - Expected: 'RC_PATH_IS_FILE' '3' - Received: '%d'\n\n", iRc);
+    return 1;
+  } else {
+    LOG_SUCCESS("Entered Data: NULL - Expected: 'RC_PATH_IS_FILE' '3' - Received: '%d'\n\n", iRc);
+  }
+
+  LOG_INFO("DELETING Testing Directories and Files...");
+  if(clear_testing_dir() != 0) {
+    LOG_ERROR("An Error Ocurred on Directories Deletion");
+    return 1;
+  }
+
+  if(clear_testing_file() != 0) {
+    LOG_ERROR("An Error Ocurred on Files Deletion");
+    return 1;
+  }
+  LOG_SUCCESS("DELETING Of Directories and Files Completed");
 
   printf("============================== IsPath Tests =============================\n\n");
   return 0;
