@@ -1,13 +1,16 @@
+@echo off
+
 if not exist "./build" ( 
   md build 
   echo "Build File Created"
 ) else (
   cd ./build
-  del testCFGFILE.dll, cfgFileTest_M.exe
+  del testCFGFILE.dll cfgFileTest_M.exe
   echo ".dll and .exe deleted"
   cd ..\
 )
 
+@echo on
 gcc -c -o ./build/logMessages.o ./src/logMessages.c -I.
 
 gcc -shared -o ./build/testCFGFILE.dll ./src/cfgFile_M.c
